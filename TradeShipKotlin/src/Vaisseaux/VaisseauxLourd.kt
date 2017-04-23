@@ -10,10 +10,11 @@ import  Positions
 class VaisseauxLourd(id: String) :AVaisseauxCombat(id){
 
     init {
-        volume = 20f
-        volumeRestant = 16f
-        masseInitiale = 20f
+        volume = 100f
+        volumeRestant = 90f
+        masseInitiale = 100f
         masse = masseInitiale
+        masseMaximal = 300f
         capaciteArmes = 4
     }
 }

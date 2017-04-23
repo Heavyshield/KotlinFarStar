@@ -1,4 +1,4 @@
-
+import kotlin.properties.Delegates
 
 /**
  * type le plus général, les elements peuvent être chargé / déchargé
@@ -7,7 +7,15 @@
 abstract class AElements(id: String) {
      val identifiant: String = id
      var masseInitiale: Float? = null
-     var masse: Float? = masseInitiale
+
+    /**
+     * Pattern observer observable sur la masse
+     */
+   open var masse: Float? by Delegates.observable(null as Float?) {
+        prop, old, new ->
+        println("$this masse est modifié : $old -> $new")
+    }
+
      var volume: Float? = null
      var positions: Positions = Positions("hangar")
      var parent: AElements? = null
@@ -18,7 +26,8 @@ abstract class AElements(id: String) {
      }
 
     /**
-     * fonctions récusirve: supprime l'element du Hanger et le rajoute pour mettre à jours ses attributs
+     * fonctions récusirve: remplace l'element stocké par celui en paramètre pour rafraichir ses attributs
+     * si l'element à un parent appel le rafraichissement sur le parent
      */
     fun rafraichirHangar(element: AElements): Boolean
      {

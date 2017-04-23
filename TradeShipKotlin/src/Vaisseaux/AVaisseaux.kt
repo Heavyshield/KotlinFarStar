@@ -2,6 +2,7 @@ package Vaisseaux
 import AElements
 import Actions.IEquiperArmes
 import  Positions
+import kotlin.properties.Delegates
 
 /**
   * spécialisation de AElements introduisant les notions de masse maximal, volume restant, la capacité de contenir des elements
@@ -10,9 +11,19 @@ import  Positions
 abstract class AVaisseaux(id: String) :AElements(id) {
 
      var masseMaximal: Float? = null
-     var volumeRestant: Float? = null
-     var listeElements = mutableListOf<AElements>()
 
+    /**
+     * Pattern observer observable sur le volumeRestant
+     */
+    var volumeRestant: Float? by Delegates.observable(null as Float?) {
+        prop, old, new ->
+        println("$this volumeRestant est modifié : $old -> $new")
+    }
+
+
+    /**
+     * Vérifie que le volumeRestant soit supérieur à 0
+     */
      fun volumeControle(capaciteVolume: Float,  volumeAjoute: Float) : Boolean {
 
          if(capaciteVolume - volumeAjoute > 0)
@@ -42,48 +53,6 @@ abstract class AVaisseaux(id: String) :AElements(id) {
         }
     }
 
-    /**
-      * calcul la masse total en faisant une somme des masses des elements dans listeElements
-     */
-     fun rafraichirMasse(vaisseau: VaisseauxTransport) {
-        var m : Float = vaisseau.masseInitiale as Float
-        for (element: AElements in vaisseau.listeElements)
-        {
-            m += element.masse as Float
-        }
-        vaisseau.masse = m
-    }
-
-    /**
-     * calcul le volume restant en soustrayant les volumes des elements dans listeElements
-     */
-   open fun rafraichirVolume(vaisseau: VaisseauxTransport) {
-        var v : Float = vaisseau.volume as Float
-        for (element: AElements in vaisseau.listeElements)
-        {
-            v -= element.volume as Float
-        }
-        vaisseau.volume = v
-    }
-
-    /**
-      * retourne un element dans listeElements correspondant a l'identifiant donné
-     */
-     fun trouverElement(nomElement: String): AElements? {
-
-        var nullableResult : AElements? = null
-
-        for(element: AElements in listeElements)
-        {
-            if (element.identifiant == nomElement)
-            {
-                nullableResult = element
-                break
-            }
-        }
-
-        return nullableResult
-    }
 
 
 }

@@ -10,12 +10,14 @@ import Armes.AArmes
  */
 open class VaisseauxTransport(id: String) :  AVaisseaux( id), ITransporter {
 
+    var listeElements = mutableListOf<AElements>()
+
 
     init {
         volume = 100f
         volumeRestant = 90f
         masseInitiale = 100f
-        masse = masseInitiale
+        masse = 100f
         masseMaximal = 300f
 
     }
@@ -71,8 +73,50 @@ open class VaisseauxTransport(id: String) :  AVaisseaux( id), ITransporter {
             rafraichirHangar(this.parent as AElements)
         }
 
-
         return element
+    }
+
+    /**
+     * calcul la masse total en faisant une somme des masses des elements dans listeElements
+     */
+    open fun rafraichirMasse(vaisseau: VaisseauxTransport) {
+        var m : Float = vaisseau.masseInitiale as Float
+        for (element: AElements in vaisseau.listeElements)
+        {
+            m += element.masse as Float
+        }
+        vaisseau.masse = m
+    }
+
+    /**
+     * calcul le volume restant en soustrayant les volumes des elements dans listeElements
+     */
+     fun rafraichirVolume(vaisseau: VaisseauxTransport) {
+        var v : Float = vaisseau.volume as Float
+        for (element: AElements in vaisseau.listeElements)
+        {
+            v -= element.volume as Float
+        }
+        vaisseau.volumeRestant = v
+    }
+
+    /**
+     * retourne un element dans listeElements correspondant a l'identifiant donné
+     */
+     fun trouverElement(nomElement: String): AElements? {
+
+        var nullableResult : AElements? = null
+
+        for(element: AElements in listeElements)
+        {
+            if (element.identifiant == nomElement)
+            {
+                nullableResult = element
+                break
+            }
+        }
+
+        return nullableResult
     }
 
 

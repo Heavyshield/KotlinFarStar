@@ -2,6 +2,7 @@ import Actions.IEquiperArmes
 import Armes.AArmes
 import Armes.Blasters
 import Armes.Phasers
+import Vaisseaux.VaisseauxHybride
 import Vaisseaux.VaisseauxLeger
 import Vaisseaux.VaisseauxLourd
 import Vaisseaux.VaisseauxTransport
@@ -13,7 +14,6 @@ import org.junit.Test
  */
 
 class Test {
-
 
     @Test fun rafraichirHangar() {
 
@@ -35,24 +35,8 @@ class Test {
 
         assert(Hangar.listeElements.contains(vc1))
 
-
     }
 
-    @Test fun equiperTrouverDesequiperArme() {
-
-        val phaser1 = Phasers("p1")
-        val leger1 = VaisseauxLeger("vc1")
-
-        leger1.equiperArme(phaser1)
-
-        /*
-        trouverArme est une function retournant le type nullable AArmes? d'ou le cast en AArmes
-         */
-       val phaser1copie = leger1.trouverElement("p1") as AArmes
-
-        leger1.desequiperArme(phaser1copie)
-
-    }
 
     @Test fun equiperArme() {
         val blaster1 = Blasters("b1", 100)
@@ -67,7 +51,6 @@ class Test {
 
         lourd1.equiperArme(blaster1)
         lourd1.desequiperArme(blaster1)
-
     }
 
 
@@ -87,20 +70,48 @@ class Test {
 
     }
 
+    @Test fun rafraichirHybride() {
+        val vl1 = VaisseauxLourd("vh1")
+        val vh1 = VaisseauxHybride(vl1)
+        val cn1 = Conteneurs("cn1")
+        val blaster1 = Blasters("b1", 100)
+
+        assert(vh1.masse == 100f)
+        assert(vh1.volumeRestant == 90f)
+
+        vh1.equiperArme(blaster1)
+
+        vh1.rafraichirMasse(vh1)
+        assert(vh1.masse == 102f)
+        assert(blaster1.positions.position == "vh1")
+
+
+        vh1.chargerElement(cn1)
+
+        assert(vh1.trouverElement("cn1") == cn1)
+        assert(vh1.volumeRestant == 80f)
+        assert(vh1.masse == 112f)
+        assert(cn1.positions.position == "vh1")
+
+
+    }
+
     @Test fun rafraichirCombat() {
         val vc1 = VaisseauxLeger("vl1")
         val phaser1 = Phasers("p1")
 
         assert(vc1.masse == 10f)
-        assert(vc1.volumeRestant == 8f)
 
         vc1.equiperArme(phaser1)
 
         assert(vc1.masse == 11f)
-        assert(vc1.volumeRestant == 7f)
         assert(phaser1.positions.position == "vl1")
 
+        vc1.desequiperArme(phaser1)
+
+        assert(vc1.masse == 10F)
     }
+
 
 
 
@@ -123,14 +134,11 @@ class Test {
         assert(vt1.trouverElement("cn1") == null)
     }
 
-
     @Test fun chercherElement() {
 
         val vt1 = VaisseauxTransport("vt1")
 
         assert(Hangar.chercherElement("vt1") == vt1)
     }
-
-
 
 }

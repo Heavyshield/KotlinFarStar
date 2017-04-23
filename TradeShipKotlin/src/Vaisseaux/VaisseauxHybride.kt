@@ -3,100 +3,34 @@ import Actions.IEquiperArmes
 import Positions
 import Armes.AArmes
 import AElements
+import kotlin.properties.Delegates
 
 /**
- * Spécialisation de VaisseauxTransport lui permettant de transporter
- * Implémentation de l'interface IEquiperArme car la spécialisation de vaisseauxCombat n'est pas possible faute d'héritage mutliple
+ * Hérite de vaisseaux de transport
+ * Delegue l'équipement désequipement d'arme à un objet de type AVaisseauxCombat
  */
-class VaisseauxHybride(id: String) : VaisseauxTransport(id),IEquiperArmes {
-
-    var capaciteArmes: Int? = null
-
-    init {
-        volume = 100f
-        volumeRestant = 90f
-        masseInitiale = 100f
-        masse = masseInitiale
-        masseMaximal = 300f
-        capaciteArmes = 4
-    }
+class VaisseauxHybride(combatDelegation: AVaisseauxCombat) :VaisseauxTransport(combatDelegation.identifiant), IEquiperArmes by combatDelegation {
 
     /**
-     * ajoute une arme a listeElement passe le statut a: équipé
+     * Smart cast combat --> AVaisseauxCombat
      */
-    override fun equiperArme(arme: AArmes) {
+    var combat = combatDelegation
 
-        if(capaciteArmesControle(capaciteArmes as Int) && masseControle(masseMaximal as Float,masse as Float,arme.masseInitiale as Float) && volumeControle(volumeRestant as Float,arme.volume as Float) )
-        {
-            listeElements.add(arme)
-            volumeRestant = volumeRestant as Float - arme.volume as Float
-            masse = masse as Float + arme.masseInitiale as Float
-            arme.positions = Positions(this.identifiant)
-            arme.parent = this
-            arme.status = Status.équipé
-
-            if (this.parent != null)
-            {
-                rafraichirMasse(this.parent as VaisseauxTransport)
-                rafraichirVolume(this.parent as VaisseauxTransport)
-                rafraichirHangar(this.parent as AElements)
-            }
-
-        }
-    }
 
     /**
-     * retire une arme de listeElement passe le statut a: stocké, retourne l'arme
-     * Opérateur !! moyen non sécurisé de manipuler des types nullable
-     * si l'une des références donne un null génére un nullPointerException
-    */
-    override fun desequiperArme(arme: AArmes): AArmes {
-
-        if (listeElements.remove(arme))
-        {
-            volumeRestant = volumeRestant !! + arme.volume !!
-            masse = masse !! - arme.masseInitiale !!
-            arme.positions = Positions("hangar")
-            arme.parent = null
-            arme.status = Status.stocké
-
-            if (this.parent != null)
-            {
-                rafraichirMasse(this.parent as VaisseauxTransport)
-                rafraichirVolume(this.parent as VaisseauxTransport)
-                rafraichirHangar(this as AElements)
-                rafraichirHangar(this.parent as AElements)
-            }
-        }
-        else
-        {
-            print("cette arme n'est pas équipée")
-        }
-
-        return arme
-    }
-
-    /**
-     * vérifie que la quantité d'arme ajouté ne dépasse pas la capacité en arme
+     * calcul la masse total en faisant une somme des masses des elements dans listeElements et listeArmes
      */
-    override fun capaciteArmesControle( nombreArmes: Int) : Boolean {
-        var nombreArmesActuel : Int = 0
-
-        for (element : AElements in listeElements)
+    override fun rafraichirMasse(vaisseau: VaisseauxTransport) {
+        var m : Float = masseInitiale as Float
+        for (element: AElements in listeElements)
         {
-            if (element.status == Status.équipé) nombreArmesActuel += 1
+            m += element.masse as Float
         }
-
-
-        if(nombreArmesActuel + nombreArmes < capaciteArmes as Int + 1)
+        for(element: AElements in combat.listeArmes)
         {
-            return true
+            m += element.masse as Float
         }
-        else
-        {
-            println("La capacite en armes de " + capaciteArmes + " a était dépassé")
-            return false
-        }
+        masse = m
     }
 
 }

@@ -13,6 +13,8 @@ import AElements
 
 abstract class AVaisseauxCombat(id: String) : AVaisseaux(id), IEquiperArmes {
 
+    var listeArmes = mutableListOf<AElements>()
+
     var capaciteArmes: Int = 0
 
     init {
@@ -21,7 +23,7 @@ abstract class AVaisseauxCombat(id: String) : AVaisseaux(id), IEquiperArmes {
         masseInitiale = 100f
         masse = masseInitiale
         masseMaximal = 300f
-
+        capaciteArmes = 4
     }
 
     /**
@@ -30,22 +32,14 @@ abstract class AVaisseauxCombat(id: String) : AVaisseaux(id), IEquiperArmes {
      */
     override fun equiperArme(arme: AArmes) {
 
-        if(capaciteArmesControle(capaciteArmes) && masseControle(masseMaximal as Float,masse as Float,arme.masseInitiale as Float) && volumeControle(volumeRestant as Float,arme.volume as Float)  && arme.positions.position == "hangar" )
+        if(capaciteArmesControle(capaciteArmes) && masseControle(masseMaximal as Float,masse as Float,arme.masseInitiale as Float) && arme.positions.position == "hangar" )
         {
-            listeElements.add(arme)
-            volumeRestant = volumeRestant as Float - arme.volume as Float
+            listeArmes.add(arme)
             masse = masse as Float + arme.masse as Float
             arme.positions = Positions(this.identifiant)
             arme.parent = this
             arme.status = Status.équipé
 
-            if (this.parent != null)
-            {
-                rafraichirMasse(this.parent as VaisseauxTransport)
-                rafraichirVolume(this.parent as VaisseauxTransport)
-                rafraichirHangar(this as AElements)
-                rafraichirHangar(this.parent as AElements)
-            }
         }
 
     }
@@ -57,21 +51,12 @@ abstract class AVaisseauxCombat(id: String) : AVaisseaux(id), IEquiperArmes {
      */
     override fun desequiperArme(arme: AArmes): AArmes {
 
-        if (listeElements.remove(arme))
+        if (listeArmes.remove(arme))
         {
-            volumeRestant = volumeRestant !! + arme.volume !!
             masse = masse !! - arme.masse !!
             arme.positions = Positions("hangar")
             arme.parent = null
             arme.status = Status.stocké
-
-            if (this.parent != null)
-            {
-                rafraichirMasse(this.parent as VaisseauxTransport)
-                rafraichirVolume(this.parent as VaisseauxTransport)
-                rafraichirHangar(this as AElements)
-                rafraichirHangar(this.parent as AElements)
-            }
 
         }
         else
@@ -88,13 +73,13 @@ abstract class AVaisseauxCombat(id: String) : AVaisseaux(id), IEquiperArmes {
     override fun capaciteArmesControle( nombreArmes: Int) : Boolean {
         var nombreArmesActuel : Int = 0
 
-        for (element : AElements in listeElements)
+        for (element : AElements in listeArmes)
         {
             if (element.status == Status.équipé) nombreArmesActuel += 1
         }
 
 
-        if(nombreArmesActuel + nombreArmes < capaciteArmes as Int + 1)
+        if(nombreArmesActuel + nombreArmes < capaciteArmes + 1)
         {
             return true
         }
@@ -104,6 +89,5 @@ abstract class AVaisseauxCombat(id: String) : AVaisseaux(id), IEquiperArmes {
             return false
         }
     }
-
 
 }
